@@ -21,24 +21,26 @@ class AppInsightsPackage extends Package{
 	public function on_start() {
 		Events::extend('on_render_complete', 'AppInsightsPackage', 'on_render_complete', 'packages/'.$this->pkgHandle.'/Controller.php');
 		Events::extend('on_before_render', 'AppInsightsPackage', 'on_before_render', 'packages/'.$this->pkgHandle.'/Controller.php');
-
 	}
 	public function on_before_render() {
 		$page = Page::getCurrentPage();
 		if (!$page->isEditMode())
 		{
         // Enables client-side instrumentation
-		$_instrumentationKey = 'Poner_Aca_IK';
+		$_instrumentationKey = 'd6bbc62f-5308-4632-af2d-df971eb78139';
         $clientInstrumentation = new ApplicationInsights\Joomla\Client_Instrumentation();
         $clientInstrumentation->addPrefix($_instrumentationKey,$page->getCollectionName());
 		}
 	}
+	
+
+
 	public function on_render_complete(){
 		$page = Page::getCurrentPage();
 		if (!$page->isEditMode())
 		{
 		// Enables server-side instrumentation
-		$_instrumentationKey = 'Poner_Aca_IK';
+		$_instrumentationKey = 'd6bbc62f-5308-4632-af2d-df971eb78139';
 		$serverInstrumentation = new ApplicationInsights\Joomla\Server_Instrumentation($_instrumentationKey,$page->getCollectionName());
 		register_shutdown_function(array($serverInstrumentation, 'endRequest'));
 		}
@@ -47,8 +49,17 @@ class AppInsightsPackage extends Package{
 	
 	public function install() {
 		$pkg = parent::install();
-		// install block		
-		BlockType::installBlockTypeFromPackage('appinsights', $pkg);
+		$pkg = Package::getByHandle($this->pkgHandle);
+		$co = new Config();
+		$pkg = Package::getByHandle($this->pkgHandle);
+		
+		$co->setPackageObject($pkg);
+			$sp = SinglePage::add('/dashboard/'.$this->pkgHandle.'/', $pkg);
+			$sp->update(array('cName'=>t("Application Insights"), 'cDescription'=>t("Set up the Instrumentation Key.")));
+			
+			$sp = SinglePage::add('/dashboard/'.$this->pkgHandle.'/ik/', $pkg);
+			$sp->update(array('cName'=>t("Instrumentation Key")));
+
 	}
 	
 
