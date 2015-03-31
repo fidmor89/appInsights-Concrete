@@ -26,20 +26,13 @@ class AppInsightsPackage extends Package{
 		$page = Page::getCurrentPage();
 		if (!$page->isEditMode())
 		{
-        // Enables client-side instrumentation
+			// Enables client-side instrumentation
 			$db = Loader::db();
-			//$db->Execute('INSERT INTO btAppInsights (bID,IK) VALUES(1, "d6bbc62f-5308-4632-af2d-df971eb78139") ON DUPLICATE KEY UPDATE IK = "d6bbc62f-5308-4632-af2d-df971eb78139"');
-			//$db->Execute('DELETE FROM btAppInsights WHERE bID=?',array(1));
 			//get the Instrumentation Key From the DataBase
 			if (($_instrumentationKey = $db->getOne('select IK from btAppInsights where bID = ?', array(1)))!=null)
 			{
-			echo $_instrumentationKey;
-			$clientInstrumentation = new ApplicationInsights\Joomla\Client_Instrumentation();
-			$clientInstrumentation->addPrefix($_instrumentationKey,$page->getCollectionName());
-			}
-			else
-			{
-			echo"No hay IK";
+				$clientInstrumentation = new ApplicationInsights\Joomla\Client_Instrumentation();
+				$clientInstrumentation->addPrefix($_instrumentationKey,$page->getCollectionName());
 			}
 		}
 	}
@@ -53,13 +46,8 @@ class AppInsightsPackage extends Package{
 			//get the Instrumentation Key From the DataBase
 			if (($_instrumentationKey = $db->getOne('select IK from btAppInsights where bID = ?', array(1)))!=null)
 			{
-			echo $_instrumentationKey;
-			$serverInstrumentation = new ApplicationInsights\Joomla\Server_Instrumentation($_instrumentationKey,$page->getCollectionName());
-			register_shutdown_function(array($serverInstrumentation, 'endRequest'));
-			}
-			else
-			{
-			echo"No hay IK";
+				$serverInstrumentation = new ApplicationInsights\Joomla\Server_Instrumentation($_instrumentationKey,$page->getCollectionName());
+				register_shutdown_function(array($serverInstrumentation, 'endRequest'));
 			}
 		}
 	}
@@ -82,6 +70,7 @@ class AppInsightsPackage extends Package{
 	public function uninstall() {
 			parent::uninstall();
 		$db = Loader::db();
-		$db->Execute('DROP TABLE IF EXISTS btAppInsights');//remove Instrumentation Key
+		//remove Instrumentation Key if exist
+		$db->Execute('DROP TABLE IF EXISTS btAppInsights');
 	}
 }
